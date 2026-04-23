@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Background wallpaper (hidden by default) -->
+    <ImageView
+        android:id="@+id/wallpaperView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <!-- Dark overlay -->
+    <View
+        android:id="@+id/overlayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_overlay"
+        android:visibility="gone" />
+
+    <!-- Content layer -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:id="@+id/centerGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom">
+
+                <TextView
+                    android:id="@+id/clockTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textColor="@color/white"
+                    android:textSize="120sp"
+                    android:fontFamily="sans-serif-thin"
+                    android:letterSpacing="0.05"
+                    android:includeFontPadding="false" />
+
+                <LinearLayout
+                    android:id="@+id/weatherGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/weatherIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="☁"
+                        android:textColor="@color/white_70"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/weatherTemp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--°"
+                        android:textColor="@color/white"
+                        android:textSize="28sp"
+                        android:fontFamily="sans-serif-light" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/dateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="周一 1月1日"
+                android:textColor="@color/white_70"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-light"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+    </RelativeLayout>
+</FrameLayout>
