@@ -20,74 +20,76 @@
         android:visibility="gone" />
 
     <!-- Content layer -->
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="24dp">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/centerGroup"
+        <TextView
+            android:id="@+id/clockTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_marginTop="86dp"
+            android:text="00:00"
+            android:textColor="@color/white"
+            android:textSize="150sp"
+            android:fontFamily="@font/time"
+            android:gravity="center"
+            android:letterSpacing="0.03"
+            android:includeFontPadding="false"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/weatherGroup"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/dateText"
+            app:layout_constraintVertical_bias="0.35" />
+
+        <LinearLayout
+            android:id="@+id/weatherGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="bottom">
-
-                <TextView
-                    android:id="@+id/clockTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="00:00"
-                    android:textColor="@color/white"
-                    android:textSize="120sp"
-                    android:fontFamily="sans-serif-thin"
-                    android:letterSpacing="0.05"
-                    android:includeFontPadding="false" />
-
-                <LinearLayout
-                    android:id="@+id/weatherGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginBottom="12dp"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/weatherIcon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="☁"
-                        android:textColor="@color/white_70"
-                        android:textSize="22sp" />
-
-                    <TextView
-                        android:id="@+id/weatherTemp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--°"
-                        android:textColor="@color/white"
-                        android:textSize="28sp"
-                        android:fontFamily="sans-serif-light" />
-                </LinearLayout>
-            </LinearLayout>
+            android:gravity="center_horizontal"
+            android:visibility="gone"
+            app:layout_constraintLeft_toRightOf="@id/clockTime"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/clockTime">
 
             <TextView
-                android:id="@+id/dateText"
+                android:id="@+id/weatherIcon"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:text="☁"
+                android:textColor="@color/white"
+                android:textSize="36sp"
+                android:gravity="center"
+                android:scaleType="fitXY" />
+
+            <TextView
+                android:id="@+id/weatherTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="周一 1月1日"
-                android:textColor="@color/white_70"
-                android:textSize="20sp"
-                android:fontFamily="sans-serif-light"
-                android:layout_marginTop="4dp" />
+                android:text="--°"
+                android:textColor="@color/white"
+                android:textSize="49sp"
+                android:fontFamily="@font/time"
+                android:layout_marginBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@id/clockTime" />
         </LinearLayout>
-    </RelativeLayout>
+
+        <TextView
+            android:id="@+id/dateText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="58dp"
+            android:text="周一 1月1日"
+            android:textColor="@color/white"
+            android:textSize="27sp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

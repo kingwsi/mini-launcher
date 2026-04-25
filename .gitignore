@@ -30,3 +30,12 @@ captures/
 # External Native Build
 .externalNativeBuild/
 .cxx/
+
+# Reverse Engineering Artifacts
+MicoLauncher.apk
+apktool_out/
+decompiled_original/
+jadx/
+jadx.zip
+tools/
+*.png
