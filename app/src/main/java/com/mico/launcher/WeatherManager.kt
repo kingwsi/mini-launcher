@@ -20,79 +20,76 @@ object WeatherManager {
     private var lastFetchTime = 0L
     private const val CACHE_DURATION_MS = 30 * 60 * 1000L // 30 minutes
 
-    fun fetch(callback: (WeatherInfo?) -> Unit) {
-        // Return cached data if still fresh
-        val now = System.currentTimeMillis()
-        if (cachedWeather != null && (now - lastFetchTime) < CACHE_DURATION_MS) {
-            callback(cachedWeather)
-            return
-        }
-
+    fun fetch(callback: (WeatherInfo?, String?) -> Unit) {
         Thread {
             try {
-                val url = URL("https://wttr.in/?format=j1")
+                val url = URL("http://v0.yiketianqi.com/api?unescape=1&version=v61&appid=43656133&appsecret=I42og6Lm")
                 val conn = url.openConnection() as HttpURLConnection
-                conn.connectTimeout = 15000
-                conn.readTimeout = 15000
-                conn.setRequestProperty("User-Agent", "MicoLauncher/1.0")
-                conn.setRequestProperty("Accept-Language", "zh-CN")
+                conn.connectTimeout = 5000
+                conn.readTimeout = 5000
 
-                if (conn.responseCode == 200) {
+                val responseCode = conn.responseCode
+                System.out.println("WeatherManager Response Code: $responseCode")
+                if (responseCode == 200) {
                     val json = conn.inputStream.bufferedReader().readText()
                     val weather = parseWeather(json)
-                    if (weather != null) {
-                        cachedWeather = weather
-                        lastFetchTime = System.currentTimeMillis()
-                    }
-                    callback(weather)
+                    callback(weather, if (weather == null) "Parse Error" else null)
                 } else {
-                    callback(cachedWeather) // Fall back to cache
+                    System.out.println("WeatherManager HTTP Error: $responseCode")
+                    callback(null, "HTTP $responseCode")
                 }
                 conn.disconnect()
             } catch (e: Exception) {
-                e.printStackTrace()
-                callback(cachedWeather) // Fall back to cache on error
+                System.out.println("WeatherManager Fetch Exception: $e")
+                callback(null, e.toString())
             }
         }.start()
     }
 
     private fun parseWeather(jsonString: String): WeatherInfo? {
+        System.out.println("WeatherManager JSON: $jsonString")
         return try {
             val json = JSONObject(jsonString)
-            val current = json.getJSONArray("current_condition").getJSONObject(0)
-            val tempC = current.getString("temp_C")
-            val weatherCode = current.optString("weatherCode", "113")
-
-            // Try to get Chinese description, fall back to English
-            val condition = try {
-                current.getJSONArray("lang_zh").getJSONObject(0).getString("value")
-            } catch (_: Exception) {
-                current.getJSONArray("weatherDesc").getJSONObject(0).getString("value")
+            
+            // Handle different JSON structures
+            val tempC = when {
+                json.has("tem") -> json.getString("tem")
+                json.has("temp") -> json.getString("temp")
+                else -> "20"
+            }
+            
+            val condition = when {
+                json.has("wea") -> json.getString("wea")
+                json.has("weather") -> json.getString("weather")
+                else -> "未知"
+            }
+            
+            val iconImg = when {
+                json.has("wea_img") -> json.getString("wea_img")
+                else -> "qing"
             }
 
-            val icon = mapWeatherCodeToIcon(weatherCode.toIntOrNull() ?: 113)
+            val icon = mapConditionToEmoji(iconImg)
             WeatherInfo(tempC, condition, icon)
         } catch (e: Exception) {
+            System.out.println("WeatherManager Parse Error: " + e.message)
             e.printStackTrace()
             null
         }
     }
 
-    /**
-     * Maps wttr.in weather codes to Unicode weather symbols.
-     * See: https://www.worldweatheronline.com/developer/api/docs/weather-icons.aspx
-     */
-    private fun mapWeatherCodeToIcon(code: Int): String {
-        return when (code) {
-            113 -> "☀"          // Sunny / Clear
-            116 -> "⛅"         // Partly cloudy
-            119, 122 -> "☁"    // Cloudy / Overcast
-            143, 248, 260 -> "🌫" // Fog / Mist
-            176, 263, 266, 293, 296 -> "🌦" // Light rain
-            299, 302, 305, 308, 356, 359 -> "🌧" // Heavy rain
-            200, 386, 389, 392, 395 -> "⛈" // Thunder
-            179, 182, 185, 227, 230, 323, 326, 329, 332, 335, 338, 350, 368, 371, 374, 377 -> "❄" // Snow
-            else -> "☁"        // Default to cloudy
+    private fun mapConditionToEmoji(weaImg: String): String {
+        return when (weaImg) {
+            "xue" -> "❄"
+            "lei" -> "⛈"
+            "shachen" -> "🌫"
+            "wu" -> "🌫"
+            "bingbao" -> "🧊"
+            "yun" -> "☁"
+            "yu" -> "🌧"
+            "yin" -> "☁"
+            "qing" -> "☀"
+            else -> "⛅"
         }
     }
 }

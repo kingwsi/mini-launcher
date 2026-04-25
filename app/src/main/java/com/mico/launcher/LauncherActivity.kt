@@ -26,7 +26,6 @@ class LauncherActivity : AppCompatActivity() {
     private lateinit var dateText: TextView
     private lateinit var weatherIcon: TextView
     private lateinit var weatherTemp: TextView
-    private lateinit var weatherGroup: LinearLayout
 
     // Page 2 views (Apps)
     private lateinit var appsRecyclerView: RecyclerView
@@ -68,7 +67,6 @@ class LauncherActivity : AppCompatActivity() {
         dateText = pageClock.findViewById(R.id.dateText)
         weatherIcon = pageClock.findViewById(R.id.weatherIcon)
         weatherTemp = pageClock.findViewById(R.id.weatherTemp)
-        weatherGroup = pageClock.findViewById(R.id.weatherGroup)
 
         // Initialize App Page Views
         appsRecyclerView = pageApps.findViewById(R.id.appsRecyclerView)
@@ -78,12 +76,17 @@ class LauncherActivity : AppCompatActivity() {
         viewPager.adapter = MainPagerAdapter(pages)
 
         handler.post(clockRunnable)
-        handler.post(weatherRunnable)
+        fetchWeather()
+        handler.postDelayed(weatherRunnable, 30 * 60 * 1000L)
     }
 
     private fun setupAppsList() {
         val apps = getInstalledApps()
-        appsRecyclerView.layoutManager = GridLayoutManager(this, 5) // 5 columns for landscape
+        appsRecyclerView.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.HORIZONTAL, false) // 2 rows, scrolling horizontally
+        
+        // Add snap helper for paging feel
+        androidx.recyclerview.widget.PagerSnapHelper().attachToRecyclerView(appsRecyclerView)
+        
         appsRecyclerView.adapter = AppAdapter(apps) { app ->
             val intent = Intent().apply {
                 component = ComponentName(app.packageName, app.className)
@@ -179,12 +182,17 @@ class LauncherActivity : AppCompatActivity() {
     }
 
     private fun fetchWeather() {
-        WeatherManager.fetch { weatherInfo ->
+        WeatherManager.fetch { weatherInfo, error ->
             handler.post {
                 if (weatherInfo != null) {
                     weatherIcon.text = weatherInfo.icon
                     weatherTemp.text = "${weatherInfo.tempC}°"
-                    weatherGroup.visibility = View.VISIBLE
+                    weatherIcon.visibility = View.VISIBLE
+                    weatherTemp.visibility = View.VISIBLE
+                } else {
+                    // Hide weather if fetch fails
+                    weatherIcon.visibility = View.GONE
+                    weatherTemp.visibility = View.GONE
                 }
             }
         }

@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="8dp"
-    android:background="?attr/selectableItemBackground">
+    android:padding="4dp"> <!-- Outer padding acts as margin between cards -->
 
-    <ImageView
-        android:id="@+id/appIcon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:scaleType="fitCenter" />
-
-    <TextView
-        android:id="@+id/appName"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         android:gravity="center"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:textColor="@color/white"
-        android:textSize="12sp" />
+        android:padding="8dp"
+        android:background="@drawable/ripple_app_card"
+        android:clickable="false"
+        android:focusable="false">
+
+        <ImageView
+            android:id="@+id/appIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="fitCenter" />
+
+        <TextView
+            android:id="@+id/appName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+    </LinearLayout>
 </LinearLayout>

@@ -17,6 +17,17 @@ class AppAdapter(private val apps: List<AppInfo>, private val onClick: (AppInfo)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_app, parent, false)
+        // Set item size to fit 4 columns and 2 rows
+        view.post {
+            val pWidth = parent.width
+            val pHeight = parent.height
+            if (pWidth > 0 && pHeight > 0) {
+                val layoutParams = view.layoutParams
+                layoutParams.width = pWidth / 4
+                layoutParams.height = pHeight / 2
+                view.layoutParams = layoutParams
+            }
+        }
         return ViewHolder(view)
     }
 
