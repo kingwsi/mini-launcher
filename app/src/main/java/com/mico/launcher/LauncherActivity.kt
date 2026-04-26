@@ -1,7 +1,10 @@
 package com.mico.launcher
 
+import android.content.BroadcastReceiver
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
@@ -9,8 +12,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.LinearLayout
-import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -33,13 +34,14 @@ class LauncherActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var lastMinute = -1
-    
-    private val INACTIVITY_TIMEOUT = 60000L // 60 seconds
-    private var lastInteractionTime = System.currentTimeMillis()
-    
-    private val returnToClockRunnable = Runnable {
-        if (viewPager.currentItem != 0) {
-            viewPager.setCurrentItem(0, true)
+
+    private val clockReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "com.mico.launcher.ACTION_RETURN_CLOCK") {
+                if (viewPager.currentItem != 0) {
+                    viewPager.setCurrentItem(0, true)
+                }
+            }
         }
     }
 
@@ -71,7 +73,6 @@ class LauncherActivity : AppCompatActivity() {
         val inflater = LayoutInflater.from(this)
         val pageClock = inflater.inflate(R.layout.page_clock, null)
         val pageApps = inflater.inflate(R.layout.page_apps, null)
-        val pageSettings = inflater.inflate(R.layout.page_settings, null)
 
         // Initialize Clock Page Views
         clockTime = pageClock.findViewById(R.id.clockTime)
@@ -85,28 +86,17 @@ class LauncherActivity : AppCompatActivity() {
 
         val pages = listOf(pageClock, pageApps)
         viewPager.adapter = MainPagerAdapter(pages)
-        viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-            override fun onPageSelected(position: Int) {
-                if (position != 0) {
-                    resetInactivityTimer()
-                } else {
-                    handler.removeCallbacks(returnToClockRunnable)
-                }
-            }
-        })
 
         handler.post(clockRunnable)
         fetchWeather()
         handler.postDelayed(weatherRunnable, 30 * 60 * 1000L)
         
-        resetInactivityTimer()
+        registerReceiver(clockReceiver, IntentFilter("com.mico.launcher.ACTION_RETURN_CLOCK"))
     }
 
     private fun setupAppsList() {
         val apps = getInstalledApps()
-        appsRecyclerView.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.HORIZONTAL, false) // 2 rows, scrolling horizontally
-        
-        // Add snap helper for paging feel
+        appsRecyclerView.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.HORIZONTAL, false)
         androidx.recyclerview.widget.PagerSnapHelper().attachToRecyclerView(appsRecyclerView)
         
         appsRecyclerView.adapter = AppAdapter(apps) { app ->
@@ -128,8 +118,6 @@ class LauncherActivity : AppCompatActivity() {
 
     private fun getInstalledApps(): List<AppInfo> {
         val appList = mutableListOf<AppInfo>()
-        
-        // Add virtual Settings app as the first item with a system icon
         val settingsIcon = packageManager.defaultActivityIcon
         appList.add(AppInfo("桌面设置", "com.mico.launcher.settings", settingsIcon, "SettingsActivity"))
 
@@ -149,8 +137,6 @@ class LauncherActivity : AppCompatActivity() {
                 )
             )
         }
-        
-        // Sort alphabetically
         appList.sortBy { it.label.lowercase(Locale.ROOT) }
         return appList
     }
@@ -158,33 +144,6 @@ class LauncherActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         setupImmersiveMode()
-        
-        val now = System.currentTimeMillis()
-        val prefs = getSharedPreferences("launcher_prefs", MODE_PRIVATE)
-        val isEnabled = prefs.getBoolean("auto_return_clock", true)
-        
-        if (isEnabled && viewPager.currentItem != 0 && (now - lastInteractionTime) > INACTIVITY_TIMEOUT) {
-            viewPager.currentItem = 0
-        }
-        
-        resetInactivityTimer()
-    }
-
-    override fun onUserInteraction() {
-        super.onUserInteraction()
-        lastInteractionTime = System.currentTimeMillis()
-        resetInactivityTimer()
-    }
-
-    private fun resetInactivityTimer() {
-        handler.removeCallbacks(returnToClockRunnable)
-        
-        val prefs = getSharedPreferences("launcher_prefs", MODE_PRIVATE)
-        val isEnabled = prefs.getBoolean("auto_return_clock", true)
-        
-        if (isEnabled && viewPager.currentItem != 0) {
-            handler.postDelayed(returnToClockRunnable, INACTIVITY_TIMEOUT)
-        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -198,11 +157,10 @@ class LauncherActivity : AppCompatActivity() {
         super.onDestroy()
         handler.removeCallbacks(clockRunnable)
         handler.removeCallbacks(weatherRunnable)
-        handler.removeCallbacks(returnToClockRunnable)
+        unregisterReceiver(clockReceiver)
     }
 
     override fun onBackPressed() {
-        // Return to first page if on apps page
         if (viewPager.currentItem > 0) {
             viewPager.currentItem = 0
         }
@@ -249,7 +207,6 @@ class LauncherActivity : AppCompatActivity() {
                     weatherIcon.visibility = View.VISIBLE
                     weatherTemp.visibility = View.VISIBLE
                 } else {
-                    // Hide weather if fetch fails
                     weatherIcon.visibility = View.GONE
                     weatherTemp.visibility = View.GONE
                 }

@@ -56,8 +56,16 @@ function restore() {
     echo "--- 恢复完成！系统已回到原厂状态 ---"
 }
 
+function setup_launcher() {
+    echo "--- 正在为 minLauncher 开启无障碍服务权限 ---"
+    adb -s $TARGET shell settings put secure enabled_accessibility_services com.mico.launcher/.GlobalInactivityService
+    adb -s $TARGET shell settings put secure accessibility_enabled 1
+    echo "--- 权限设置完成 ---"
+}
+
 if [ "$1" == "restore" ]; then
     restore
 else
     debloat
+    setup_launcher
 fi

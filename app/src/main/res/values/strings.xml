@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">minLauncher</string>
+    <string name="accessibility_description">用于监测系统空闲状态，自动返回时钟界面。</string>
 </resources>

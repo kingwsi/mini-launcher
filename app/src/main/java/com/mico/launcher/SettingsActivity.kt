@@ -1,9 +1,7 @@
 package com.mico.launcher
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
 
@@ -50,7 +48,7 @@ class SettingsActivity : AppCompatActivity() {
             val info = packageManager.getApplicationInfo(packageName, 0)
             !info.enabled
         } catch (e: Exception) {
-            true // 没找到包则认为已禁用
+            true
         }
     }
 
